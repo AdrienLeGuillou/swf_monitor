@@ -18,3 +18,9 @@ equiped HPC
 - stop / cancel workflow
 - show wf status (running, etc)
 
+- find a way to use it locally
+    - send cmd through ssh
+    - handle ssh connection
+- port to a web app?
+    - leptos, yew, dioxus
+    - wasm
