@@ -69,18 +69,10 @@ fn draw_body<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 fn draw_wf_list<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
-    let wf_names: Vec<ListItem> = app.workflows.iter()
-                                               .map(|x| ListItem::new(String::from(&x.name)))
-                                               .collect();
+    let wf_names = app.workflows.iter()
+                                .map(|x| ListItem::new(String::from(&x.name)))
+                                .collect::<Vec<ListItem>>();
 
-    // let text = vec![
-    //     Line::from(vec![
-    //                 Span::raw("This is the:"),
-    //                 Span::raw("wf_list"),
-    //                 Span::raw("list"),
-    //     ]),
-    // ];
-    // let content = Paragraph::new(text)
     let content = List::new(wf_names)
         .block(Block::default().title("wf list").borders(Borders::ALL));
 
