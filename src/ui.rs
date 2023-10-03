@@ -2,7 +2,7 @@ use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Paragraph},
+    widgets::{Block, BorderType, Borders, Paragraph, List, ListItem},
     text::{Line, Span},
     Frame,
 };
@@ -69,15 +69,19 @@ fn draw_body<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
 }
 
 fn draw_wf_list<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = vec![
-        Line::from(vec![
-                    Span::raw("This is the:"),
-                    Span::raw("wf_list"),
-                    Span::raw("list"),
-        ]),
-    ];
+    let wf_names: Vec<ListItem> = app.workflows.iter()
+                                               .map(|x| ListItem::new(String::from(&x.name)))
+                                               .collect();
 
-    let content = Paragraph::new(text)
+    // let text = vec![
+    //     Line::from(vec![
+    //                 Span::raw("This is the:"),
+    //                 Span::raw("wf_list"),
+    //                 Span::raw("list"),
+    //     ]),
+    // ];
+    // let content = Paragraph::new(text)
+    let content = List::new(wf_names)
         .block(Block::default().title("wf list").borders(Borders::ALL));
 
     frame.render_widget(content, area);

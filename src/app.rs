@@ -1,4 +1,6 @@
 use std::error;
+use std::path::Path;
+use swf::workflow::{Workflow, load_workflows};
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -10,13 +12,20 @@ pub struct App {
     pub running: bool,
     /// counter
     pub counter: u8,
+    pub workflows: Vec<Workflow>,
 }
 
 impl Default for App {
     fn default() -> Self {
+        let wfs = match load_workflows(Path::new(".")) {
+            Ok(x) => x,
+            _ => Vec::new(),
+        };
+
         Self {
             running: true,
             counter: 0,
+            workflows: wfs,
         }
     }
 }
