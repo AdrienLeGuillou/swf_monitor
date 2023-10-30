@@ -14,6 +14,13 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
                 app.quit();
             }
         }
+        // WF selection handlers
+        KeyCode::Char('j') => {
+            app.select_next_wf();
+        }
+        KeyCode::Char('k') => {
+            app.select_prev_wf();
+        }
         // Counter handlers
         KeyCode::Right => {
             app.increment_counter();

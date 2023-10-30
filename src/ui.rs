@@ -1,16 +1,18 @@
 use tui::{
-    backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Paragraph, List, ListItem},
-    text::{Line, Span},
+    widgets::{Block, BorderType, Borders, Paragraph, List, ListItem, ListState},
+    text::{Line, Text},
     Frame,
 };
 
+use std::collections::HashMap;
+
 use crate::app::App;
+use swf::workflow::Workflow;
 
 /// Renders the user interface widgets.
-pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
+pub fn render(app: &mut App, frame: &mut Frame) {
     let top_level = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
@@ -26,11 +28,11 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
     draw_footer(frame, app, top_level[2]);
 }
 
-fn draw_tab_bar<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_tab_bar(frame: &mut Frame, app: &mut App, area: Rect) {
     let text = vec![
         Line::from(vec![
-                    Span::raw("This is the:"),
-                    Span::raw("Header"),
+                    "This is the:".into(),
+                    "Header".into(),
         ]),
     ];
 
@@ -40,11 +42,11 @@ fn draw_tab_bar<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
     frame.render_widget(content, area);
 }
 
-fn draw_footer<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_footer(frame: &mut Frame, app: &mut App, area: Rect) {
     let text = vec![
         Line::from(vec![
-                    Span::raw("This is the:"),
-                    Span::raw("Footer"),
+                    "This is the:".into(),
+                    "Footer".into(),
         ]),
     ];
 
@@ -54,7 +56,7 @@ fn draw_footer<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
     frame.render_widget(content, area);
 }
 
-fn draw_body<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_body(frame: &mut Frame, app: &mut App, area: Rect) {
     let body_layout = Layout::default()
         .direction(Direction::Horizontal)
         .constraints(
@@ -68,28 +70,69 @@ fn draw_body<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
     draw_wf_summary(frame, app, body_layout[1]);
 }
 
-fn draw_wf_list<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
+fn draw_wf_list(frame: &mut Frame, app: &mut App, area: Rect) {
     let wf_names = app.workflows.iter()
                                 .map(|x| ListItem::new(String::from(&x.name)))
                                 .collect::<Vec<ListItem>>();
 
-    let content = List::new(wf_names)
-        .block(Block::default().title("wf list").borders(Borders::ALL));
+    let mut lstate = ListState::default();
+    lstate.select(Some(app.selected_wf));
 
-    frame.render_widget(content, area);
+    let content = List::new(wf_names)
+        .block(Block::default().title("wf list").borders(Borders::ALL))
+        .highlight_style(
+            Style::default()
+            .bg(Color::LightBlue)
+            .fg(Color::Black)
+        );
+
+    // frame.render_widget(content, area);
+    frame.render_stateful_widget(content, area, &mut lstate);
 }
 
-fn draw_wf_summary<B: Backend>(frame: &mut Frame<B>, app: &mut App, area: Rect) {
-    let text = vec![
-        Line::from(vec![
-                    Span::raw("This is the:"),
-                    Span::raw("wf_summary"),
-                    Span::raw("lorem ipsum"),
-        ]),
-    ];
-
+fn draw_wf_summary(frame: &mut Frame, app: &mut App, area: Rect) {
+    let text = Text::from(format_wf_summary(&app.workflows[app.selected_wf]));
     let content = Paragraph::new(text)
         .block(Block::default().title("wf summary").borders(Borders::ALL));
 
     frame.render_widget(content, area);
+}
+
+fn format_wf_summary(wf: &Workflow) -> Vec<Line> {
+    let l_name = Line::from(vec![
+        "Workflow Name: ".into(),
+        wf.name.to_string().into(),
+    ]);
+    let l_steps = Line::from(vec![
+        "Step Count: ".into(),
+        wf.n_steps.to_string().into(),
+    ]);
+
+    let mut root_path = String::new();
+    if let Some(p) =  &wf.root_path {
+        root_path.push_str(p.to_str().unwrap_or(""));
+    }
+
+    let l_path = Line::from(vec![
+        "Root Path: ".into(),
+        root_path.into(),
+    ]);
+
+    let mut formatted_out = vec![l_name, l_steps, l_path];
+
+    if let Some(opts) = &wf.default_sbatch_opts {
+        formatted_out.push(Line::from("Default sbatch Options:"));
+
+        let mut fmt_opts = format_sbatch_options(opts);
+        formatted_out.append(&mut fmt_opts);
+    }
+
+    formatted_out
+}
+
+fn format_sbatch_options(opts: &HashMap<String, String>) -> Vec<Line> {
+    opts.iter()
+        .map(|(k, v)| Line::from(vec![
+                                 "| ".into(), k.into(), ": ".into(), v.into()]))
+        .collect()
 }

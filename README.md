@@ -4,6 +4,15 @@ Monitor and control
 [`slurmworkflow`](https://github.com/EpiModel/slurmworkflow)s on a SLURM
 equiped HPC
 
+## Next step
+
+- add a second tab to inspect a specific workflows
+    - select them with summary in tab1
+    - in tab2, can go through the steps
+- first add the `tab` widget in the header
+- then implement the second tab
+- look at gitui for insipration?
+
 ## To Do
 
 - [x] dummy layout

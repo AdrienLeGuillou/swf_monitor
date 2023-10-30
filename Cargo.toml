@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 crossterm = "0.26.1"
-tui = { package = "ratatui", version = "0.23.0" }
+tui = { package = "ratatui", version = "0.24.0" }
 swf = { path = "../swf-rs" }

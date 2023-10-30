@@ -13,6 +13,7 @@ pub struct App {
     /// counter
     pub counter: u8,
     pub workflows: Vec<Workflow>,
+    pub selected_wf: usize,
 }
 
 impl Default for App {
@@ -26,6 +27,7 @@ impl Default for App {
             running: true,
             counter: 0,
             workflows: wfs,
+            selected_wf: 0,
         }
     }
 }
@@ -42,6 +44,22 @@ impl App {
     /// Set running to false to quit the application.
     pub fn quit(&mut self) {
         self.running = false;
+    }
+
+    pub fn select_next_wf(&mut self) {
+        if self.selected_wf == self.workflows.len() - 1 {
+            self.selected_wf = 0;
+        } else {
+            self.selected_wf += 1;
+        }
+    }
+
+    pub fn select_prev_wf(&mut self) {
+        if self.selected_wf == 0 {
+            self.selected_wf = self.workflows.len() - 1;
+        } else {
+            self.selected_wf -= 1;
+        }
     }
 
     pub fn increment_counter(&mut self) {
